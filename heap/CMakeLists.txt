@@ -14,43 +14,43 @@ find_package( fmt REQUIRED )
 
 #-------------------------------------------------------------------------------
 # C code examples from slides
-set( EXAMPLE "heap-c" )
-add_executable( "${EXAMPLE}" )
-target_sources( "${EXAMPLE}" PRIVATE heap.c)
-add_test( NAME test-"${EXAMPLE}" COMMAND "${EXAMPLE}" )
+set( TARGET "heap-c" )
+add_executable( "${TARGET}" )
+target_sources( "${TARGET}" PRIVATE heap.c)
+add_test( NAME test-"${TARGET}" COMMAND "${TARGET}" )
 
 #-------------------------------------------------------------------------------
 # C++ (modern) examples from slides
-set( EXAMPLE "heap-cpp" )
-add_executable( "${EXAMPLE}" )
-target_sources( "${EXAMPLE}" PRIVATE heap.cpp)
-target_link_libraries( "${EXAMPLE}" PRIVATE fmt::fmt )
-add_test( NAME test-"${EXAMPLE}" COMMAND "${EXAMPLE}" )
+set( TARGET "heap-cpp" )
+add_executable( "${TARGET}" )
+target_sources( "${TARGET}" PRIVATE heap.cpp)
+target_link_libraries( "${TARGET}" PRIVATE fmt::fmt )
+add_test( NAME test-"${TARGET}" COMMAND "${TARGET}" )
 
 #-------------------------------------------------------------------------------
 # Other useful examples
-set( EXAMPLE "free-ptr" )
-add_executable( "${EXAMPLE}" )
-target_sources( "${EXAMPLE}" PRIVATE freePtr.c )
-add_test( NAME test-"${EXAMPLE}" COMMAND "${EXAMPLE}" )
+set( TARGET "free-ptr" )
+add_executable( "${TARGET}" )
+target_sources( "${TARGET}" PRIVATE freePtr.c )
+add_test( NAME test-"${TARGET}" COMMAND "${TARGET}" )
 
-set( EXAMPLE "delete-ptr" )
-add_executable( "${EXAMPLE}" )
-target_sources( "${EXAMPLE}" PRIVATE deletePtr.cpp)
-target_link_libraries( "${EXAMPLE}" PRIVATE fmt::fmt )
-add_test( NAME test-"${EXAMPLE}" COMMAND "${EXAMPLE}" )
+set( TARGET "delete-ptr" )
+add_executable( "${TARGET}" )
+target_sources( "${TARGET}" PRIVATE deletePtr.cpp)
+target_link_libraries( "${TARGET}" PRIVATE fmt::fmt )
+add_test( NAME test-"${TARGET}" COMMAND "${TARGET}" )
 
-set( EXAMPLE "unique-ptr" )
-add_executable( "${EXAMPLE}" )
-target_sources( "${EXAMPLE}" PRIVATE uniquePtr.cpp)
-target_link_libraries( "${EXAMPLE}" PRIVATE fmt::fmt )
-add_test( NAME test-"${EXAMPLE}" COMMAND "${EXAMPLE}" )
+set( TARGET "unique-ptr" )
+add_executable( "${TARGET}" )
+target_sources( "${TARGET}" PRIVATE uniquePtr.cpp)
+target_link_libraries( "${TARGET}" PRIVATE fmt::fmt )
+add_test( NAME test-"${TARGET}" COMMAND "${TARGET}" )
 
-set( EXAMPLE "heapusage" )
-add_executable( "${EXAMPLE}" )
-target_sources( "${EXAMPLE}" PUBLIC heapusage.hpp PRIVATE heapusage.cpp)
-target_link_libraries( "${EXAMPLE}" PRIVATE fmt::fmt )
-target_compile_definitions( "${EXAMPLE}" PRIVATE SELFTEST_HEAPUSAGE=1 )
-add_test( NAME test-"${EXAMPLE}" COMMAND "${EXAMPLE}" )
+set( TARGET "heapusage" )
+add_executable( "${TARGET}" )
+target_sources( "${TARGET}" PUBLIC heapusage.hpp PRIVATE heapusage.cpp)
+target_link_libraries( "${TARGET}" PRIVATE fmt::fmt )
+target_compile_definitions( "${TARGET}" PRIVATE SELFTEST_HEAPUSAGE=1 )
+add_test( NAME test-"${TARGET}" COMMAND "${TARGET}" )
 
 # vim:syntax=cmake:nospell
