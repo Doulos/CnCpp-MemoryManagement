@@ -2,6 +2,29 @@
 #
 # Install GoogleTest under current project.
 # IMPORTANT; Must be run inside project git repository.
+if [[ "$!" =~ ^-{1,2}h(elp)?$ ]]; then
+  cat <<'HELPTEXT'
+Name
+----
+build-gtest - Install GoogleTest under the current project.
+
+Synopsis
+--------
+build-gtest --help|-h # produces this text
+build-gtest
+
+Description
+-----------
+Installs the [GoogleTest framework](https://google.github.io/googletest/) under `extern/`, which is located based on the top-level git repository's location.
+
+IMPORTANT
+---------
+Must be run inside project git repository.
+
+HELPTEXT
+  exit 0;
+fi
+
 
 LIBNAME="GoogleTest"
 GIT_URL="https://github.com/google/googletest.git"
@@ -11,19 +34,20 @@ function Die() {
   exit 1
 }
 function Realpath() {
+  if [[ $# == 0 ]]; then set - .; fi
   /usr/bin/perl '-MCwd(abs_path)' -le '$p=abs_path(join(q( ),@ARGV));print $p if -e $p' "$*"
 }
 
 TOOL_PATH="$(Realpath "$0")"
 echo "Attempting to build ${LIBNAME} using ${TOOL_PATH}"
 HERE="$(pwd)"
-if [[ "${HERE}" =~ .*/externs ]]; then
-  cd "${HERE/externs*/}" || Die "Trying to escape externs sub-directory failed"
+if [[ "${HERE}" =~ .*/extern ]]; then
+  cd "${HERE/extern*/}" || Die "Trying to escape extern sub-directory failed"
 fi
-PROJECT_DIR="$(git rev-parse --show-toplevel)" || Die "Not in git repo"
+WORKTREE_DIR="$(git rev-parse --show-toplevel)" || Die "Not in git repo"
 REPO_DIR="$(basename "${GIT_URL}" .git)"
 BUILD_DIR="build"
-INSTALL_DIR="${PROJECT_DIR}/externs"
+INSTALL_DIR="${WORKTREE_DIR}/extern"
 mkdir -p "${INSTALL_DIR}"
 cd "${INSTALL_DIR}" || Die "Unable to enter ${INSTALL_DIR}"
 if [[ -d "${REPO_DIR}/.git" ]]; then

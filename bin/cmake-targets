@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+cmake --build build --target help | perl -lane 'next unless m{^\.}; print $F[1] unless $F[1] =~ m{[.]} or $F[1] =~ m{(all|clean|depend|test|install|_cache)$}'

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#/Users/dcblack/Docker/systemcc/home/bin/build
+#/Users/dcblack/Docker/systemcc/sandbox/reporting/bin/build
+#/Users/dcblack/Projects/modern/temp/bin/build
+#/Users/dcblack/Projects/modern/Cpu/bin/build
+#/Users/dcblack/Projects/modern/SystemC/bin/build
+#/Users/dcblack/Projects/modern/platform/bin/build
+#/Users/dcblack/Dropbox/Sandbox/sc_examples/sc-platform/bin/build
+
+
+B0='/Volumes/Doulos-Main/SHOWS/Webinars/2022-02-CnCpp_Memory_Management/MemoryManagement/bin/build'
+B1='/Users/dcblack/AWS/portable-scripts/.local/bin/build'
+B2='/Volumes/Doulos-Training/work/CompCpp/bin/build'
+B3='/Volumes/Doulos-Training/work/modern-cpp/bin/build'
+
+byc "${B0}" "${B1}"
+read -rp 'Press return to continue'
+byc "${B0}" "${B2}"
+read -rp 'Press return to continue'
+byc "${B0}" "${B3}"
+
+# vim:nospell
