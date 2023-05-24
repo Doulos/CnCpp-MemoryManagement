@@ -1,5 +1,4 @@
 #!cmake .
-
 cmake_minimum_required ( VERSION 3.21 )
 
 # Header style guard for multiple inclusion protection
@@ -33,6 +32,8 @@ set( CMAKE_C_STANDARD_REQUIRED   11 CACHE BOOL   "The CMAKE_CXX_STANDARD selecte
 #------------------------------------------------------------------------------
 find_package( GTest REQUIRED )
 include_directories( $ENV{PROJECT_DIR}/externs/include ${GTEST_INCLUDE_DIRS} )
+link_directories( AFTER $ENV{PROJECT_DIR}/externs/lib )
+link_libraries(  gtest gmock gtest_main pthread )
 
 #-------------------------------------------------------------------------------
 # Increase sensitivity to all warnings
@@ -40,5 +41,7 @@ include_directories( $ENV{PROJECT_DIR}/externs/include ${GTEST_INCLUDE_DIRS} )
 include( strict )  # << Report as many compilation issues as able
 
 enable_testing()
+
+include( set_target )
 
 # vim:syntax=cmake:nospell

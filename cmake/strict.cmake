@@ -7,3 +7,5 @@ else() # GCC or LLVM
     # lots of warnings
     add_compile_options( -Wall -Wextra -pedantic )
 endif()
+
+# vim:nospell
