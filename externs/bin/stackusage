@@ -1,0 +1,227 @@
+#!/bin/bash
+
+# Copyright (C) 2015-2022 Kristofer Berggren
+# All rights reserved.
+#
+# stackusage is distributed under the BSD 3-Clause license, see LICENSE for details.
+
+showusage()
+{
+  echo "stackusage runs an application and measures the stack usage of its"
+  echo "main thread and child threads. By helping determine stack"
+  echo "utilization, it enables adjusting stack sizes with desired margin."
+  echo "The tool is particularly useful for applications and libraries "
+  echo "designed to work in resource-constrained environments, such as "
+  echo "embedded systems."
+  echo ""
+  echo "Usage: stackusage [-d] [-o PATH] [-s SIG] PROG [ARGS..]"
+  echo "   or: stackusage --help"
+  echo "   or: stackusage --version"
+  echo ""
+  echo "Options:"
+  echo "   -d              debug mode, running program through debugger"
+  echo "   -o <PATH>       write output to specified file path, instead of stderr"
+  echo "   -s <SIG>        enable on-demand logging when signalled SIG signal"
+  echo "   PROG            program to run and analyze"
+  echo "   [ARGS..]        optional arguments to the program"
+  echo "   --help          display this help and exit"
+  echo "   --version       output version information and exit"
+  echo ""
+  echo "Examples:"
+  echo "stackusage ./ex001"
+  echo ""
+  echo "executes the program 'ex001' and measures its stack usage."
+  echo "Result is output to stderr on the following format:"
+  echo ""
+  echo "stackusage log at 2018-10-28 22:33:18 ----------------------------------------"
+  echo "  pid  id    tid  requested     actual     maxuse  max%    dur  funcP"
+  echo "11863   0  11863    8388608    8384512      13944     0      0  (nil)"
+  echo ""
+  echo "Report bugs at https://github.com/d99kris/stackusage"
+  echo ""
+}
+
+showversion()
+{
+  echo "stackusage v1.16"
+  echo ""
+  echo "Copyright (C) 2015-2022 Kristofer Berggren"
+  echo ""
+  echo "stackusage is distributed under the BSD 3-Clause license."
+  echo ""
+  echo "Written by Kristofer Berggren"
+}
+
+check_arch_compat()
+{
+  LIBPATH="${1}"
+  PRGPATH="$(which ${2})"
+  if [[ "${PRGPATH}" != "" ]]; then
+    PRGARCH=$(file -b ${PRGPATH} | awk '{print $1 " " $2}')
+    LIBARCH=$(file -b ${LIBPATH} | awk '{print $1 " " $2}')
+    PRGBITS=$(file -b ${PRGPATH} | awk '{print $2}' | awk -F'-' '{print $1}')
+    LIBBITS=$(file -b ${LIBPATH} | awk '{print $2}' | awk -F'-' '{print $1}')
+    if [[ "${PRGBITS}" =~ ^(32|64)$ ]] && [[ "${LIBBITS}" =~ ^(32|64)$ ]] && \
+       [[ "${PRGARCH}" != "${LIBARCH}" ]]; then
+      echo "warning: $(basename ${LIBPATH}) architecture (${LIBARCH}) does not appear"
+      echo "to match ${PRGPATH} architecture (${PRGARCH}), analysis may fail."
+      echo "see https://github.com/d99kris/stackusage#technical-details"
+    fi
+  fi
+}
+
+if [ "${1}" == "--help" ] ; then
+  showusage
+  exit 0
+elif [ "${1}" == "--version" ] ; then
+  showversion
+  exit 0
+elif [ "${#}" == "0" ] ; then
+  showusage
+  exit 1
+fi
+
+# Arguments - regular options
+DEBUG="0"
+SIGNO=""
+OUTFILE=""
+while getopts "?do:s:" OPT; do
+  case "${OPT}" in
+  \?)
+    showusage
+    exit 1
+    ;;
+  d)
+    DEBUG="1"
+    ;;
+  o)
+    OUTFILE="${OPTARG}"
+    ;;
+  s)
+    if ! [[ "${OPTARG}" =~ ^[0-9]+$ ]]; then
+      # Not a number, try signal name
+      SIGNO="$(kill -l ${OPTARG} 2> /dev/null)"
+      if [[ "${SIGNO}" == "" ]]; then
+        echo "error: unknown signal name ${OPTARG}"
+        exit 1
+      fi
+    else
+      SIGNO="${OPTARG}"
+    fi
+    ;;
+  esac
+done
+shift $((OPTIND-1))
+[ "$1" = "--" ] && shift
+
+# Arguments - ensure program specified
+if [ "${#}" == "0" ] ; then
+  showusage
+  exit 1
+else
+  PROG="${@:1}"  
+fi
+
+# Determine self location
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+# Set Stackusage library name
+if [ "$(uname)" == "Darwin" ]; then
+  # Mac
+  LIBNAME="libstackusage.dylib"
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  # GNU/Linux
+  LIBNAME="libstackusage.so"
+else
+  # Unsupported OS
+  echo "Unsupported OS"
+  exit 1
+fi
+
+# Supported library paths
+LIBPATHS=(
+  "${DIR}/../lib/${LIBNAME}"
+  "${DIR}/.libs/${LIBNAME}"
+  "${DIR}/${LIBNAME}"
+)
+
+# Create temp dir
+TMP=$(mktemp -d)
+
+# Set output path
+if [ "${OUTFILE}" == "" ]; then
+  # Create temporary output dir and set up log file path
+  TMPLOG="${TMP}/stackusage.log"
+else
+  # Clear temp log path, just to be safe
+  TMPLOG=""
+  # Delete specified output path
+  rm "${OUTFILE}" 2> /dev/null
+fi
+
+# Iterate through library paths
+RV=1
+CNT=0
+FOUND=0
+while [ "${LIBPATHS[CNT]}" != "" ]; do
+  LIBPATH="${LIBPATHS[CNT]}"
+  if [ -e "${LIBPATH}" ]; then
+
+    # Check if libstackusage is compatible with program to analyze
+    check_arch_compat "${LIBPATH}" "${1}"
+
+    # Run program
+    if [ "${DEBUG}" == "0" ]; then
+      SU_FILE="${TMPLOG}${OUTFILE}"         \
+      SU_SIGNO="${SIGNO}"                   \
+      LD_PRELOAD="${LIBPATH}"               \
+      DYLD_INSERT_LIBRARIES="${LIBPATH}"    \
+      "${@:1}"
+    else
+      LLDBCMDPATH="${TMP}/lldb.cmd"
+      echo "env SU_FILE=\"${TMPLOG}${OUTFILE}\""        >  "${LLDBCMDPATH}"
+      echo "env SU_SIGNO=\"${SIGNO}\""                  >> "${LLDBCMDPATH}"
+      echo "env LD_PRELOAD=\"${LIBPATH}\""              >> "${LLDBCMDPATH}"
+      echo "env DYLD_INSERT_LIBRARIES=\"${LIBPATH}\""   >> "${LLDBCMDPATH}"
+      echo "run ${@:2}"                                 >> "${LLDBCMDPATH}"
+      lldb "${1}" -s "${LLDBCMDPATH}"
+    fi
+
+    FOUND=1
+    RV=${?}
+    break
+  fi
+  CNT=$((${CNT} + 1))
+done
+
+# Report error if library not found
+if [ "${FOUND}" != "1" ]; then
+  echo "error: unable to determine path of ${LIBNAME}"
+  exit 1
+fi
+
+# Process temporary output dir
+if [ "${OUTFILE}" == "" ]; then
+  if [ -f "${TMPLOG}" ]; then
+    cat "${TMPLOG}" >&2
+  else
+    echo "error: unable to preload ${LIBNAME}"
+    if [ "$(uname)" == "Darwin" ]; then
+      echo "note that stackusage on macOS cannot measure stack usage on"
+      echo "programs protected by System Integrity Protection, it should"
+      echo "however work on locally compiled programs."
+    fi
+  fi
+fi
+
+# Cleanup temp dir
+rm -rf "${TMP}"
+
+# Exit
+exit ${RV}
