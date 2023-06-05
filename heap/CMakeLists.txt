@@ -53,4 +53,8 @@ target_link_libraries( "${TARGET}" PRIVATE fmt::fmt )
 target_compile_definitions( "${TARGET}" PRIVATE SELFTEST_HEAPUSAGE=1 )
 add_test( NAME test-"${TARGET}" COMMAND "${TARGET}" )
 
+add_subdirectory( corrupted )
+add_subdirectory( fragmented )
+add_subdirectory( overlooked )
+
 # vim:syntax=cmake:nospell

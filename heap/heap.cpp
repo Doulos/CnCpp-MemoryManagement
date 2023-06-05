@@ -20,15 +20,14 @@ auto mag() { return fmt::emphasis::bold | fg( fmt::color::magenta ); }
 #endif
 
 //______________________________________
-// Slide 15 & setup for later slides
-#include <cstdint>
+// Setup for several slides
 #include <vector>
 using Type = uint64_t;
-struct Data_t { Type x, y; };
+struct Data_t { Type x{}, y{}; };
 [[maybe_unused]] Data_t const  okData = { 0xAd0beAceUL, 0xF00dCafeUL };
 [[maybe_unused]] Data_t const badData = { 0xD15ea5edUL, 0xDeadBeefUL };
 
-void slide_15() {
+void slide_16() {
   fmt::print( grn(), "Starting {0:-<80}\n", __func__ );
   auto ptr = new Type{}; // C++
   auto v = std::vector<int>{}; // C++
@@ -40,7 +39,7 @@ void slide_15() {
 //______________________________________
 // Slides 18 & 19
 struct S_t {
-  Data_t d;
+  Data_t d{};
   void processData() { fmt::print( "x={}, y={}\n", d.x, d.y); }
 };
 
@@ -57,7 +56,7 @@ void destroy( S_t*& ptr ) {
 void slide_18() {
   fmt::print( grn(), "Starting {0:-<80}\n", __func__ );
   auto ptr = create();
-  if( ptr ) {
+  if( ptr != nullptr ) {
     ptr -> processData();
     destroy( ptr );
   }
@@ -147,16 +146,16 @@ public:
   Thingy() :id{next()} {}
   void init()  { use = true; id=next(); f = 0.0; print(); }
   void reset() { use = false; }
-  bool inUse() const { return use; }
+  [[nodiscard]] bool inUse() const { return use; }
   void process() { f += 0.1; print(); }
   void print() { fmt::print( "Thingy{} @{:x} use={} f={}\n", id, uintptr_t(this), use, f); }
   static Thingy* getNext()
   {
     static Thingy pool[THINGS];
-    for ( int i = 0; i < THINGS; ++i ) {
-      if ( !pool[ i ].inUse() ) {
-        pool[ i ].init();
-        return &pool[ i ];
+    for (auto & entry: pool) {
+      if ( not entry.inUse() ) {
+        entry.init();
+        return &entry;
       }
     }
     return nullptr;
@@ -296,8 +295,8 @@ void slide_31() {
 
 //______________________________________
 // Slide 33
-#define CACHE_LINE_SIZE 64 // Aarch64
-#define QTY 10
+constexpr const size_t CACHE_LINE_SIZE = 64; // Aarch64
+constexpr const size_t QTY = 10ul;
 struct Data { float f; uint32_t count; };
 struct alignas(CACHE_LINE_SIZE) Chunk {
   uint32_t data[sizeof(Data)]{};
@@ -314,9 +313,9 @@ void slide_33() {
 // Invoke to code to ensure no hidden bugs
 int main()
 {
-  slide_15();
-  slide_18();
-  slide_20();
+  slide_16(); // "What is the heap?" - new, delete, and std::vector
+  slide_18(); // "Forgetting to free (1)" - create and destroy
+  slide_20(); // "Forgetting to free (2)" -
   slide_21();
   slide_23();
   slide_24();

@@ -4,7 +4,7 @@
 #include <memory>
 #include <fmt/format.h>
 
-#define VALIDITY(p) fmt::print( "{} is {}\n", #p, ( p ? "valid" : "invalid" ) )
+#define VALIDITY(p) fmt::print( "On line {}, {} is {}\n", __LINE__, #p, ( p ? "valid" : "invalid" ) )
 
 class Noisy
 {
@@ -19,6 +19,11 @@ auto func(std::unique_ptr<Noisy>&& p)
   VALIDITY(p);
   fmt::print( "Finished {}\n", __func__ );
   return std::move(p);
+}
+
+auto func2() {
+  auto ptr = std::unique_ptr<Noisy>{ new Noisy };
+  return ptr;
 }
 
 int main()
@@ -41,6 +46,11 @@ int main()
   auto p4 = func(std::move(p3));
   VALIDITY(p3);
   VALIDITY(p4);
+
+  {
+    auto p5 = func2();
+    VALIDITY(p5);
+  }
 
   fmt::print( "Exiting\n" );
   return 0;
