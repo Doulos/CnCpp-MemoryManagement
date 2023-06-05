@@ -42,6 +42,17 @@ include( strict )  # << Report as many compilation issues as able
 
 enable_testing()
 
-include( set_target )
+# Two simple macros to simplify codign and aid getting a list of all defined executables and tests
+macro( set_target name )
+  set( Target "${name}" )
+  list( APPEND Targets "${name}" )
+endmacro()
+
+macro( set_testname name )
+  set( Testname "${name}" )
+  list( APPEND Testnames "${name}" )
+endmacro()
+
+# vim:nospell
 
 # vim:syntax=cmake:nospell
