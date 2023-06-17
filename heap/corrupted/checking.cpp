@@ -1,9 +1,11 @@
 #include <vector>
 #include <array>
+#include <iostream>
 
 int main()
 {
-  int i=3, j=-1;
+  int i=3;
+  int value = 42;
 
   std::vector<int> vec = {1,2,3};
 
@@ -13,7 +15,7 @@ int main()
     std::cout << "Caught " << e.what() << '\n';
   }
 
-  std::arr<int,3> array={1,2,3};
+  std::array<int,3> arr={1,2,3};
 
   try {
     arr.at(i) = value;
