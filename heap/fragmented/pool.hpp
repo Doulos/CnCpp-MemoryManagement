@@ -57,6 +57,7 @@ struct Pool {
       if ( is_active( p ) ) {
         free( p );
       }
+      p = &e;
       zero( p );
     }
   }
