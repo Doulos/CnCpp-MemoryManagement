@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <bitset>
 #include <array>
+#include <cassert>
 #include <cstring> //memset
 
 #ifndef NDEBUG

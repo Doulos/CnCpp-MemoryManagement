@@ -1,6 +1,7 @@
 #include <fmt/format.h>
 #include <fmt/color.h>
 #include <memory>
+#include <cassert>
 
 auto grn() { return fmt::emphasis::bold | fg( fmt::color::light_green );   }
 auto red() { return fmt::emphasis::bold | fg( fmt::color::red );     }

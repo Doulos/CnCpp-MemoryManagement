@@ -5,6 +5,7 @@
 #include <random>
 #include <string>
 #include <iostream>
+#include <cassert>
 
 int main()
 {
