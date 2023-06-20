@@ -51,11 +51,12 @@ void process_mem_usage( double& vm_usage, double& resident_set )
 #ifdef SELFTEST_MEMUSAGE
 #include <fmt/format.h>
 #include <locale>
-int main()
+int main( int argc, const char* argv[] )
 {
   double vm, rss;
   process_mem_usage( vm, rss );
-  std::locale::global(std::locale("en_US.UTF-8"));
+  // locale not supported on all platforms
+  if( argc > 1 && std::string{"-l"} == argv[1] ) std::locale::global(std::locale("en_US.UTF-8"));
   fmt::print( "VM: {:f}; RSS: {:L}\n", vm, rss);
 }
 #endif
