@@ -37,7 +37,7 @@ if( NOT DEFINED ENV{LAX} )
       add_compile_options( /W4 )
   else()
       # lots of warnings
-      add_compile_options( -Wall -Wextra -pedantic )
+      add_compile_options( -Wall -Wextra -pedantic -Wno-unknown-pragmas )
   endif()
 else()
   if (MSVC)
