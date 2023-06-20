@@ -9,13 +9,13 @@
 
 void fill( uint64_t* buffer, size_t depth, uint64_t expected )
 {
-  for(int i=0; i!=depth/8; ++i) buffer[i] = expected;
+  for(unsigned int i=0; i!=depth/8; ++i) buffer[i] = expected;
 }
 
 const char* check( uint64_t* buffer, size_t depth, uint64_t expected )
 {
   bool ok = true;
-  for(int i=0; i!=depth/8; ++i) ok &= (buffer[i] == expected);
+  for(unsigned int i=0; i!=depth/8; ++i) ok &= (buffer[i] == expected);
   return( ok?"OK":"Corrupted!" );
 }
 int main(int argc, const char* argv[])
