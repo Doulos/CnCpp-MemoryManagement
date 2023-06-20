@@ -129,7 +129,20 @@ struct Pool {
     if ( is_active( p ) ) {
       return; // don't zero used entries
     }
+// Use of memset is valid for this case because this is to be treated as raw memory (not active).
+#if defined( __clang__ )
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wclass-memaccess"
+#elif defined( __GNUC__ ) || defined( __GNUG__ )
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
     memset( p, 0, sizeof( *p ) );
+#if defined( __clang__ )
+#  pragma clang diagnostic pop
+#elif defined( __GNUC__ ) || defined( __GNUG__ )
+#  pragma GCC diagnostic pop
+#endif
   }
 
   void free( T*& p )
