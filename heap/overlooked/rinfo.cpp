@@ -17,7 +17,7 @@ size_t usedStack(void)
 {
   uint64_t stack[STACKSIZE/sizeof(uint64_t)];
   size_t i = 0;
-  for(; (i < STACKSIZE/sizeof(uint64_t)) and (stack[i] == DEADSTACK); ++i);
+  for(; (i < STACKSIZE/sizeof(uint64_t)) and (stack[i] == DEADSTACK); ++i); // expect maybe uninitialized warning
   return STACKSIZE-i*WW;
 }
 
@@ -48,7 +48,7 @@ int main([[maybe_unused]]int argc, [[maybe_unused]]const char* argv[])
   fillHeap();
   //...
   fmt::print("Stack used {} bytes\n", usedStack());
-  fmt::print("Heap used {} bytes\n", usedHeap());
+  fmt::print("Heap used {} bytes\n", usedHeap()); // expect maybe uninitialized warning
   return 0;
 }
 #endif
