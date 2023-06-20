@@ -5,7 +5,7 @@
 #if defined(__clang__)
 #  pragma clang diagnostic ignored "-Wunused-parameter"
 #elif defined(__GNUC__) || defined(__GNUG__)
-#. pragma GCC   diagnostic ignored "-Wunused-parameter"
+#  pragma GCC   diagnostic ignored "-Wunused-parameter"
 #endif
 
 #include "stack.h"
