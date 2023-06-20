@@ -5,6 +5,7 @@
 #include <random>
 #include <algorithm>
 #include <array>
+#include <string>
 #include <cassert>
 
 auto grn() { return fmt::emphasis::bold | fg( fmt::color::light_green );   }
@@ -162,7 +163,7 @@ struct Image {
       }
     }
     StackProbe::update();
-    return std::move(temp);
+    return temp;
   }
 };
 
@@ -203,9 +204,10 @@ void slide_51() noexcept {
 
 //______________________________________
 // Invoke to code to ensure no hidden bugs
-int main()
+int main( int argc, const char* argv[] )
 {
-  std::locale::global(std::locale("en_US.UTF-8"));
+  // locale not supported on all platforms
+  if( argc > 1 && std::string{"-l"} == argv[1] ) std::locale::global(std::locale("en_US.UTF-8"));
   stackTest();
   slide_49();
   return 0;
