@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Keep statistics private
 namespace {
-  struct Stats {
+  struct HeapStats {
     std::size_t used{0};
     std::size_t requested{0};
     std::size_t largest{0};
@@ -24,6 +24,7 @@ namespace {
     std::size_t zeroRequests{0};
     bool        debug{false};
     bool        track{true};
+    bool        locale{false};
   } heap;
 }
 
@@ -50,25 +51,46 @@ std::size_t heapMax()
 ////////////////////////////////////////////////////////////////////////////////
 void heapStats()
 {
-  Stats snap{heap};
-  heapTracking(false);
-  std::puts(fmt::format( std::locale("en_US.UTF-8"), R"(
+  HeapStats snap{heap};
+  heapTracking(false); // Don't track while reporting
+  auto format_str = R"(
 Heap statistics
 ---------------
   Current used:     {:L}  Maximum used:    {:L} (bytes)
   Smallest request: {:L}  Largest request: {:L} (bytes)
   Calls to new:     {:L}  Empty new calls: {:L}
   Calls to delete:  {:L}  Empty deletes:   {:L}
-)"
-  , snap.used
-  , snap.max
-  , snap.smallest
-  , snap.largest
-  , snap.requests
-  , snap.zeroRequests
-  , snap.deletes
-  , snap.nullDeletes
-  ).c_str());
+)";
+  // locale not fully supported on all platforms
+  if( heap.locale ) {
+    std::puts(fmt::format
+      ( std::locale("en_US.UTF-8")
+      , format_str
+      , snap.used
+      , snap.max
+      , snap.smallest
+      , snap.largest
+      , snap.requests
+      , snap.zeroRequests
+      , snap.deletes
+      , snap.nullDeletes
+      ).c_str()
+    );
+  }
+  else {
+    std::puts(fmt::format 
+      ( format_str
+      , snap.used
+      , snap.max
+      , snap.smallest
+      , snap.largest
+      , snap.requests
+      , snap.zeroRequests
+      , snap.deletes
+      , snap.nullDeletes
+      ).c_str()
+    );
+  }
   heapTracking(true);
 }
 
@@ -77,6 +99,13 @@ void heapDebug( bool on )
 {
   heap.debug = on;
   std::printf("Heap debugging turned %s\n", (on?"ON":"OFF"));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void heapLocale( bool on )
+{
+  heap.locale = on;
+  std::printf("Locale enabled %s\n", (on?"ON":"OFF"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -172,19 +201,24 @@ class Image {
 using namespace std::literals;
 int main(int argc, const char* argv[])
 {
+  // Check command-line for debug flag
   for(int i=1; i<argc; ++i) {
-    if(( std::strcmp(argv[i],"-d") == 0 ) or ( std::strcmp(argv[i],"-debug") == 0 )) {
+    std::string arg = argv[i];
+    if(  arg =="-d" or arg == "-debug" ) {
       heapDebug();
+    }
+    else if ( arg == "-l" or arg == "-locale" ) {
+      heapLocale();
     }
   }
 
   std::printf("sizeof(Widget) = %zu\n", sizeof(Widget));
 
-  [[maybe_unused]]auto p1 = new int{};
-  delete p1;
+  [[maybe_unused]]auto p1 = new int{}; // simple allocation
+  delete p1; // simple release
 
   [[maybe_unused]]auto p2 = new int[10]{}; // guaranteed to call the replacement in C++11
-  delete[] p2;
+  delete[] p2; // array release
 
   [[maybe_unused]]auto p3 = new Widget{};
 

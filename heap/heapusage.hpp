@@ -15,5 +15,6 @@ void        heapStats(); //< display all heap statistics
 // Turn-on verbose messaging about allocations and deletions
 void        heapDebug( bool on = true ); //< turn on display of every new/delete operation
 void        heapTracking( bool on );
+void        heapLocale( bool on = true );
 
 #endif/*HEAPUSAGE_HPP*/
