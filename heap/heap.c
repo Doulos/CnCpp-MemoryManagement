@@ -8,7 +8,7 @@
 #if defined(__clang__)
 #  pragma clang diagnostic ignored "-Wunused-parameter"
 #elif defined(__GNUC__) || defined(__GNUG__)
-#. pragma GCC   diagnostic ignored "-Wunused-parameter"
+#  pragma GCC   diagnostic ignored "-Wunused-parameter"
 #endif
 
 
@@ -63,7 +63,7 @@ void slide_22(void) {
   destroy( &ptr1 );
   //…
   if( ptr2 != NULL ){ // Valid?
-    *ptr2 = badCode;//???
+    *ptr2 = badCode;//??? Wrie
     //…
     destroy( &ptr2 ); //!!!
   }
@@ -78,20 +78,21 @@ void slide_24(void) {
 
   Type* arr = (Type*)malloc(3*sizeof(Type));
 
-  arr[i] = 0xDeadBeefUL; // ?
+  arr[i] = 0xDeadBeefUL; // ? Corrupt beyond end
 
   Type* ptr = arr;
 
-  *(ptr + j) = 0xDeadF00dUL; // ?
+  *(ptr + j) = 0xDeadF00dUL; // ? Corrupt before beginning
 
 }
 
 //--------------------------------------
-#define DEPTH (4*sizeof(int))
+typedef int Arr[4];
+#define DEPTH (4*sizeof(Arr))
 void slide_25(int i) {
-  Type* arr = (Type*)malloc(DEPTH);
+  int* arr = (int*)malloc(DEPTH);
   assert(i>=0 && i<(int)sizeof(arr));
-  arr[i] = 0xDeadCab1eUL;
+  arr[i] = 0x0BadC0de;
   free(arr);
 }
 
@@ -115,22 +116,24 @@ void slide_31(void) {
   struct Complex* last = &area[AREA_DEPTH-1];
   struct Complex* ptr = &area[AREA_DEPTH/2];
   printf( "Check valid ptr\n" );
-  if( check( ptr, area, last ) ) printf( "PASS\n" );
+  if( check( ptr, area, last ) ) printf( "Check indicates success - PASS\n" );
   //...
   ptr = area - 1;
   printf( "Intentional violation ptr = %p\n", (void*)ptr );
-  if( ! check( (void*)ptr, (void*)area, last ) ) printf( "PASS\n" );
+  if( ! check( (void*)ptr, (void*)area, last ) ) printf( "Check indicates failure - PASS\n" );
   printf( "Finished %s\n\n", __func__ );
 }
 
 //--------------------------------------
-int main(void)
+int main(int argc, const char* argv[])
 {
+//printf("Starting heap.c\n");
   slide_16(); // "What is the heap?" - malloc & free examples
   slide_18(); // "Forgetting to free (1)" - proper create & destroy
-  slide_22();
-  slide_24();
-  slide_25(2);
+  slide_22(); // "Access after free and double free"
+  slide_25(2);// "- valid heap access
+  if( argc == 1 ) printf("Hiding corruption -- try adding an argument\n");
+  slide_24(); // "Corrupt heap array - write outside array before and after"
   slide_31();
   return 0;
 }
