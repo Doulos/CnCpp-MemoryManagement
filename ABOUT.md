@@ -6,32 +6,6 @@ The code in many of these examples intentionally exhibits bad behavior even thou
 
 For more information, contact <mailto:info@doulos.com>.
 
-## Building on Linux/macos/WSL2
-
-See [Requirements]
-
-```bash
-# Fetch source or download and unzip
-git clone https://github.com/Doulos/CnCpp-MemoryManagement.git
-
-# Setup (see setup.profile)
-export CC CXX
-CXX="g++"
-CC="gcc"
-SRC_DIR=""
-BUILD_DIR="build/debug"
-
-# Configure
-cmake -S "${SYSTEMC_SRC}" -B "${BUILD_DIR}" 
-
-# Compile
-cmake --build "${BUILD_DIR}"
-
-# Run tests
-ctest --test-dir build/debug -C Debug -VV
-```
-Depending on your environment, you may (if you're lucky) see errors or warnings about the issues this project exposes. If not, it simply proves the point that "code that compiles" may have subtle bugs.
-
 ## Requirements
 
 Note: This project was tested on:
@@ -40,6 +14,7 @@ Note: This project was tested on:
 2. Ubuntu 20.04.6 LTS running on `x86_64` (Intel Xeon CPU) with 1 core & 2G RAM
 3. WSL2 running Ubuntu 20.04.5 LTS running on a Dell XPS 15 9510 with i9-11900H (x86_64)
 4. WSL2 running Ubuntu 22.04.2 LTS running on a Dell XPS 15 9510 with i9-11900H (x86_64)
+5. {fmt} library for I/O using by this code
 
 You should have the following tools installed.
 
@@ -48,6 +23,57 @@ You should have the following tools installed.
 - `gdb` version 9.2 or better
 - `make` or `ninja`
 - `perl` and `bash` if using any of the scripts
+
+## Building on Linux/macos/WSL2
+
+See [Requirements]
+
+There are two approaches to building this project from a Linux or macos perspective:
+
+1. Use some provided scripts (under `extern/bin`)
+2. Do all the steps manually
+
+### Using provided scripts
+
+```bash
+source setup.profile
+build fmt
+build -test
+```
+
+### Manual steps
+
+
+```bash
+# Setup (see setup.profile)
+TOP_DIR="$(pwd)/CnCpp-MemoryManagement"
+SRC_DIR="${TOP_DIR}"
+BUILD_DIR="${TOP_DIR}/build/debug"
+export CC CXX
+CXX="g++"
+CC="gcc"
+
+# Fetch source or download and unzip
+git clone https://github.com/Doulos/CnCpp-MemoryManagement.git
+cd "${TOP_DIR}"
+
+# Change `fmt::format` calls to using streaming I/O or install the {fmt} library
+# into `extern/` by cloning from GitHub
+git clone https://github.com/fmtlib/fmt.git extern/fmt
+cd extern/fmt
+# Read and follow the installation instructions. Install under "${TOP_DIR}/extern"
+cd -
+
+# Configure
+cmake "${SRC_DIR}" -B "${BUILD_DIR}" 
+
+# Compile
+cmake --build "${BUILD_DIR}"
+
+# Run tests
+ctest --test-dir build/debug -C Debug -VV
+```
+Depending on your environment, you may (if you're lucky) see errors or warnings about the issues this project exposes. If not, it simply proves the point that "code that compiles" may have subtle bugs.
 
 <!--
 # vim:nospell
