@@ -103,7 +103,11 @@ void stackTest()
 
 uint32_t randNoise(uint_fast8_t bits) {
   // Discard lower-8 bits due to poor distribution
+#ifdef __WIN32
+  return (rand()>>8)&((1<<bits)-1);
+#else
   return (random()>>8)&((1<<bits)-1);
+#endif
 }
 
 uint32_t addNoise(uint32_t pel) {
