@@ -2,19 +2,11 @@
 
 This repository contains coding examples related to a 3-part webinar on C/C++ Memory Management.
 
-The code in many of these examples intentionally exhibits bad behavior even though it compiles.
+The code in many of these examples intentionally exhibits bad behavior even though it compiles. Please take time to understand the code. Some parts of this code are useful for reuse, but others here simply illustrate bad code. Don't copy the bad parts!
 
-For more information, contact <mailto:info@doulos.com>.
+For more information, contact info@doulos.com.
 
 ## Requirements
-
-Note: This project was tested on:
-
-1. macos Ventura 13.3.1a running on MacBook Pro with Apple M1 Max (Arm64) **without GDB**
-2. Ubuntu 20.04.6 LTS running on `x86_64` (Intel Xeon CPU) with 1 core & 2G RAM
-3. WSL2 running Ubuntu 20.04.5 LTS running on a Dell XPS 15 9510 with i9-11900H (x86_64)
-4. WSL2 running Ubuntu 22.04.2 LTS running on a Dell XPS 15 9510 with i9-11900H (x86_64)
-5. {fmt} library for I/O using by this code
 
 You should have the following tools installed.
 
@@ -23,6 +15,15 @@ You should have the following tools installed.
 - `gdb` version 9.2 or better
 - `make` or `ninja`
 - `perl` and `bash` if using any of the scripts
+- {fmt} library -- used for I/O in several places as a better alternative to streaming and sprintf
+
+This project has been tested on the following configurations
+
+  1. macos Ventura 13.3.1a running on MacBook Pro with Apple M1 Max (Arm64) **without GDB**
+  2. Ubuntu 20.04.6 LTS running on `x86_64` (Intel Xeon CPU) with 1 core & 2G RAM
+  3. WSL2 running Ubuntu 22.04.2 LTS running on a Dell XPS 15 9510 with i9-11900H (x86_64)
+
+  
 
 ## Building on Linux/macos/WSL2
 
