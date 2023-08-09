@@ -4,6 +4,8 @@ This repository contains coding examples related to a 3-part webinar on C/C++ Me
 
 The code in many of these examples intentionally exhibits bad behavior even though it compiles. Please take time to understand the code. Some parts of this code are useful for reuse, but others here simply illustrate bad code. Don't copy the bad parts!
 
+Note: There are references to slide numbers, but they won't make much sense since the numbering has changed since the original presentation.
+
 For more information, contact info@doulos.com.
 
 ## Requirements
