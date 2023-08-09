@@ -1,25 +1,21 @@
 #!/usr/bin/env bash
 #
-#$Info: build-gsl - Install C++ Core Guidelines Support Library under the current project. $
-# IMPORTANT; Must be run inside project git repository.
+#$Info: build-wcs - install WorstCaseStack (C utility). $
+
 if [[ "$!" =~ ^-{1,2}h(elp)?$ ]]; then
   cat <<'HELPTEXT'
 Name
 ----
-build-gsl - Install GSL, the C++ Core Guidelines Support Library under the current project.
+build-wcs - install WorstCaseStack (C utility).
 
 Synopsis
 --------
-build-gsl --help|-h # produces this text
-build-gsl [--clean]
+build-wcs --help|-h # produces this text
+build-wcs
 
 Description
 -----------
-Installs the [C++ Core Guidelines library]() under `extern/include/`, which is located based on the top-level git repository's location.
-
-IMPORTANT
----------
-Must be run inside project git repository.
+Simply clones the WorseCaseStack GitHub repo from https://github.com/PeterMcKinnis/WorstCaseStack into extern/WorstCaseStack.
 
 HELPTEXT
   exit 0;
@@ -28,14 +24,14 @@ fi
 #-------------------------------------------------------------------------------
 # Configure
 #...............................................................................
-LIBNAME="GSL (C++ Core Guidelines Support Library)"
-GIT_URL="https://github.com/microsoft/GSL.git"
+LIBNAME="C Worst Case Stack analysis"
+GIT_URL="https://github.com/PeterMcKinnis/WorstCaseStack.git"
 
 #-------------------------------------------------------------------------------
 # Essential
 #...............................................................................
-function Realpath() {
-  if [[ $# == 0 ]]; then set - .; fi
+function Realpath ()
+{
   /usr/bin/perl '-MCwd(abs_path)' -le '$p=abs_path(join(q( ),@ARGV));print $p if -e $p' "$*"
 }
 
@@ -57,7 +53,7 @@ source "$SCRIPTDIR/Essential-IO"
 #-------------------------------------------------------------------------------
 # Main
 #...............................................................................
-function Build_gsl()
+function Build_wcs()
 {
   TOOL_PATH="$(Realpath "$0")"
   Report_info "Attempting to build ${LIBNAME} using ${TOOL_PATH}"
@@ -66,9 +62,15 @@ function Build_gsl()
     cd "${HERE/extern*/}" || Report_error "Trying to escape extern sub-directory failed"
   fi
   WORKTREE_DIR="$(git rev-parse --show-toplevel)" || Report_error "Not in git repo"
-  REPO_DIR="$(basename "${GIT_URL}" .git)"
   INSTALL_DIR="${WORKTREE_DIR}/extern"
-  mkdir -p "${INSTALL_DIR}"
+  REPO_NAME="$(basename "${GIT_URL}" .git)"
+  REPO_DIR="${INSTALL_DIR}/${REPO_NAME}"
+
+  if [[ -d "${WORKTREE_DIR}/.local" ]]; then
+    Report_warning "Installation not under project"
+  fi
+
+  _do mkdir -p "${INSTALL_DIR}/bin"
   cd "${INSTALL_DIR}" || Report_fatal "Unable to enter ${INSTALL_DIR}"
   Report_info "Building under ${INSTALL_DIR}"
   if [[ "$1" =~ ^-{1,2}clean$ ]]; then
@@ -80,15 +82,17 @@ function Build_gsl()
     Report_info "Successfully updated ${LIBNAME}"
   else
     rm -fr "${REPO_DIR}"
-    _do git clone "${GIT_URL}" || Report_error "Unable to clone"
+    _do git clone "${GIT_URL}" "${REPO_DIR}" || Report_error "Unable to clone"
   fi
-  TARGET_DIR="$(Realpath "${REPO_DIR}")"
-  if [[ ! -L "${INSTALL_DIR}/include/gsl" ]]; then
-    _do ln -s "${TARGET_DIR}/include/gsl" "${INSTALL_DIR}/include/gsl"
+  if [[ ! -L "${INSTALL_DIR}/bin" ]]; then
+    if [[ -e "${INSTALL_DIR}/bin/wcs" ]]; then
+      _do rm "${INSTALL_DIR}/bin/wcs"
+    fi
+    _do ln -s "${REPO_DIR}/WCS.py" "${INSTALL_DIR}/bin/wcs" || Report_error "Failed to install ${REPO_NAME}"
     Report_info "Successfully installed ${LIBNAME}"
   fi
 }
 
-Build_gsl "$@"
+Build_wcs "$@"
 
 # vim:nospell
