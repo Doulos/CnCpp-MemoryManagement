@@ -63,9 +63,11 @@ void slide_22(void) {
   destroy( &ptr1 );
   //…
   if( ptr2 != NULL ){ // Valid?
-    *ptr2 = badCode;//??? Wrie
+    *ptr2 = badCode;//??? Write
     //…
-    destroy( &ptr2 ); //!!!
+#ifdef ALLOW_CRASH
+    destroy( &ptr2 ); //!!! CRASH
+#endif
   }
 }
 
